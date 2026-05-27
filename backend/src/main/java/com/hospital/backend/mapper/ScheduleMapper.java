@@ -20,7 +20,9 @@ public interface ScheduleMapper {
             "join doctor d on d.id = s.doctor_id " +
             "join department dep on dep.id = d.department_id " +
             "where s.doctor_id = #{doctorId} " +
-            "and s.work_date >= curdate() and s.work_date <= date_add(curdate(), interval 7 day) " +
+            "and s.work_date <= date_add(curdate(), interval 6 day) " +
+            "and (s.work_date > curdate() or " +
+            "(s.work_date = curdate() and s.period = 'AFTERNOON' and curtime() < '12:00:00')) " +
             "order by s.work_date, field(s.period, 'MORNING', 'AFTERNOON')")
     List<Schedule> findFutureByDoctor(Long doctorId);
 

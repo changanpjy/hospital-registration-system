@@ -63,16 +63,27 @@
 
 `POST /api/auth/register`
 
-请求：
+手机号注册请求：
 
 ```json
 {
   "username": "wangwu",
   "phone": "13833333333",
+  "password": "123456"
+}
+```
+
+邮箱注册请求：
+
+```json
+{
+  "username": "wangwu",
   "email": "wangwu@example.com",
   "password": "123456"
 }
 ```
+
+注册时用户名必填；手机号和邮箱二选一作为联系方式。登录时 `account` 可填写用户名、手机号或邮箱。数据库对用户名有唯一约束。
 
 ## 科室列表
 
@@ -103,6 +114,8 @@
 ## 医生排班查询
 
 `GET /api/doctors/{doctorId}/schedules`
+
+返回未来 7 天内可展示的号源；如果当前时间是上午，会包含今天下午号源，今天上午号源不展示。
 
 响应：
 

@@ -17,16 +17,26 @@ public class AuthService {
     }
 
     public User register(RegisterRequest request) {
-        if (!StringUtils.hasText(request.getPhone()) && !StringUtils.hasText(request.getEmail())) {
-            throw new BusinessException("手机号或邮箱至少填写一个");
+        String username = trimToNull(request.getUsername());
+        String phone = trimToNull(request.getPhone());
+        String email = trimToNull(request.getEmail());
+        if (!StringUtils.hasText(username)) {
+            throw new BusinessException("请填写用户名");
         }
-        if (userMapper.countDuplicate(request.getUsername(), request.getPhone(), request.getEmail()) > 0) {
+        if (!StringUtils.hasText(phone) && !StringUtils.hasText(email)) {
+            throw new BusinessException("请填写手机号或邮箱");
+        }
+        if (StringUtils.hasText(phone) && StringUtils.hasText(email)) {
+            throw new BusinessException("手机号和邮箱请选择一种方式注册");
+        }
+
+        if (userMapper.countDuplicate(username, phone, email) > 0) {
             throw new BusinessException(409, "用户名、手机号或邮箱已被注册");
         }
         User user = new User();
-        user.setUsername(request.getUsername());
-        user.setPhone(request.getPhone());
-        user.setEmail(request.getEmail());
+        user.setUsername(username);
+        user.setPhone(phone);
+        user.setEmail(email);
         user.setPassword(request.getPassword());
         user.setRole("PATIENT");
         userMapper.insert(user);
@@ -41,5 +51,12 @@ public class AuthService {
         }
         user.setPassword(null);
         return user;
+    }
+
+    private String trimToNull(String value) {
+        if (!StringUtils.hasText(value)) {
+            return null;
+        }
+        return value.trim();
     }
 }

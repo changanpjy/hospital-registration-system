@@ -12,7 +12,9 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
@@ -44,6 +46,9 @@ public class AppointmentService {
         }
         if (!"AVAILABLE".equals(schedule.getStatus()) || schedule.getAvailableCount() == null || schedule.getAvailableCount() <= 0) {
             throw new BusinessException("当前号源不可预约");
+        }
+        if (!isWithinBookableTime(schedule)) {
+            throw new BusinessException("当前时间不可预约该号源");
         }
         if (appointmentMapper.countPatientDepartmentDate(
                 request.getPatientId(), schedule.getDepartmentId(), schedule.getWorkDate()) > 0) {
@@ -119,5 +124,16 @@ public class AppointmentService {
         String date = DateTimeFormatter.ofPattern("yyyyMMddHHmmss").format(LocalDateTime.now());
         String random = UUID.randomUUID().toString().replace("-", "").substring(0, 6).toUpperCase();
         return "YYGH" + date + random;
+    }
+
+    private boolean isWithinBookableTime(Schedule schedule) {
+        LocalDate today = LocalDate.now();
+        if (schedule.getWorkDate().isBefore(today) || schedule.getWorkDate().isAfter(today.plusDays(6))) {
+            return false;
+        }
+        if (!schedule.getWorkDate().isEqual(today)) {
+            return true;
+        }
+        return "AFTERNOON".equals(schedule.getPeriod()) && LocalTime.now().isBefore(LocalTime.NOON);
     }
 }

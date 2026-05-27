@@ -242,7 +242,7 @@ INSERT INTO doctor (id, department_id, name, title, specialty, introduction, sta
 -- =========================================================
 -- 13. 初始化未来 7 天号源数据
 -- 说明：
--- 从明天开始连续 7 天
+-- 从今天开始连续 7 天；上午时段查询时会隐藏今天上午，仅保留今天下午可预约
 -- 每位医生每天上午、下午各一条号源
 -- 上午默认 15 个号，下午默认 12 个号
 -- =========================================================
@@ -262,13 +262,13 @@ SELECT
     'AVAILABLE' AS status
 FROM doctor d
          CROSS JOIN (
-    SELECT 1 AS day_num
+    SELECT 0 AS day_num
+    UNION ALL SELECT 1
     UNION ALL SELECT 2
     UNION ALL SELECT 3
     UNION ALL SELECT 4
     UNION ALL SELECT 5
     UNION ALL SELECT 6
-    UNION ALL SELECT 7
 ) days
          CROSS JOIN (
     SELECT 'MORNING' AS period
