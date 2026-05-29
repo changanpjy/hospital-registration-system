@@ -1,0 +1,21 @@
+{
+  "name": "hospital-registration-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0 --port 5173",
+    "build": "vite build",
+    "typecheck": "vue-tsc --noEmit",
+    "preview": "vite preview --host 0.0.0.0"
+  },
+  "dependencies": {
+    "@vitejs/plugin-vue": "^5.0.4",
+    "vite": "^5.0.12",
+    "vue": "^3.4.15"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.5",
+    "vue-tsc": "^2.0.29"
+  }
+}

@@ -1,0 +1,116 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="720" viewBox="0 0 1180 720" role="img" aria-labelledby="title desc">
+  <title id="title">医院挂号系统数据库 ER 图</title>
+  <desc id="desc">展示用户、就诊人、科室、医生、号源排班、预约记录之间的一对多关系。</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#1f6472" />
+    </marker>
+    <style>
+      .bg { fill: #f4f8fb; }
+      .card { fill: #ffffff; stroke: #9fc3d0; stroke-width: 2; rx: 12; }
+      .head { fill: #0f6f80; }
+      .head-text { fill: #ffffff; font: 700 18px "Microsoft YaHei", "PingFang SC", Arial, sans-serif; }
+      .field { fill: #173247; font: 14px "Microsoft YaHei", "PingFang SC", Arial, sans-serif; }
+      .note { fill: #587386; font: 13px "Microsoft YaHei", "PingFang SC", Arial, sans-serif; }
+      .rel { stroke: #1f6472; stroke-width: 2.2; fill: none; marker-end: url(#arrow); }
+      .rel-text { fill: #1f6472; font: 13px "Microsoft YaHei", "PingFang SC", Arial, sans-serif; font-weight: 700; }
+      .title { fill: #10283a; font: 700 26px "Microsoft YaHei", "PingFang SC", Arial, sans-serif; }
+      .subtitle { fill: #587386; font: 15px "Microsoft YaHei", "PingFang SC", Arial, sans-serif; }
+    </style>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1180" height="720" />
+  <text class="title" x="48" y="48">医院门诊预约挂号系统 ER 图</text>
+  <text class="subtitle" x="48" y="76">核心实体关系：用户维护就诊人，科室包含医生，医生产生号源，预约记录关联完整挂号链路。</text>
+
+  <g transform="translate(60 120)">
+    <rect class="card" x="0" y="0" width="250" height="188" />
+    <rect class="head" x="0" y="0" width="250" height="44" rx="12" />
+    <text class="head-text" x="18" y="29">users 用户表</text>
+    <text class="field" x="18" y="72">PK id</text>
+    <text class="field" x="18" y="98">username / phone / email</text>
+    <text class="field" x="18" y="124">password</text>
+    <text class="field" x="18" y="150">role / status</text>
+    <text class="note" x="18" y="174">患者账号、管理员账号</text>
+  </g>
+
+  <g transform="translate(60 392)">
+    <rect class="card" x="0" y="0" width="250" height="188" />
+    <rect class="head" x="0" y="0" width="250" height="44" rx="12" />
+    <text class="head-text" x="18" y="29">patient 就诊人表</text>
+    <text class="field" x="18" y="72">PK id</text>
+    <text class="field" x="18" y="98">FK user_id</text>
+    <text class="field" x="18" y="124">name / id_card</text>
+    <text class="field" x="18" y="150">phone / gender / birth_date</text>
+    <text class="note" x="18" y="174">一个用户可维护多个就诊人</text>
+  </g>
+
+  <g transform="translate(465 120)">
+    <rect class="card" x="0" y="0" width="250" height="188" />
+    <rect class="head" x="0" y="0" width="250" height="44" rx="12" />
+    <text class="head-text" x="18" y="29">department 科室表</text>
+    <text class="field" x="18" y="72">PK id</text>
+    <text class="field" x="18" y="98">name</text>
+    <text class="field" x="18" y="124">description</text>
+    <text class="field" x="18" y="150">status</text>
+    <text class="note" x="18" y="174">内科、外科、儿科等</text>
+  </g>
+
+  <g transform="translate(465 392)">
+    <rect class="card" x="0" y="0" width="250" height="188" />
+    <rect class="head" x="0" y="0" width="250" height="44" rx="12" />
+    <text class="head-text" x="18" y="29">doctor 医生表</text>
+    <text class="field" x="18" y="72">PK id</text>
+    <text class="field" x="18" y="98">FK department_id</text>
+    <text class="field" x="18" y="124">name / title</text>
+    <text class="field" x="18" y="150">specialty / status</text>
+    <text class="note" x="18" y="174">医生归属某个科室</text>
+  </g>
+
+  <g transform="translate(870 120)">
+    <rect class="card" x="0" y="0" width="250" height="188" />
+    <rect class="head" x="0" y="0" width="250" height="44" rx="12" />
+    <text class="head-text" x="18" y="29">schedule 号源表</text>
+    <text class="field" x="18" y="72">PK id</text>
+    <text class="field" x="18" y="98">FK doctor_id</text>
+    <text class="field" x="18" y="124">work_date / period</text>
+    <text class="field" x="18" y="150">total_count / available_count</text>
+    <text class="note" x="18" y="174">医生某天某时段的可约号源</text>
+  </g>
+
+  <g transform="translate(870 392)">
+    <rect class="card" x="0" y="0" width="250" height="220" />
+    <rect class="head" x="0" y="0" width="250" height="44" rx="12" />
+    <text class="head-text" x="18" y="29">appointment 预约记录表</text>
+    <text class="field" x="18" y="72">PK id / appointment_no</text>
+    <text class="field" x="18" y="98">FK user_id / patient_id</text>
+    <text class="field" x="18" y="124">FK department_id / doctor_id</text>
+    <text class="field" x="18" y="150">FK schedule_id</text>
+    <text class="field" x="18" y="176">visit_date / period / status</text>
+    <text class="note" x="18" y="202">记录预约、取消、完成、通知状态</text>
+  </g>
+
+  <path class="rel" d="M185 308 L185 392" />
+  <text class="rel-text" x="202" y="354">1 : N 维护</text>
+
+  <path class="rel" d="M590 308 L590 392" />
+  <text class="rel-text" x="608" y="354">1 : N 拥有</text>
+
+  <path class="rel" d="M715 486 C780 486 805 214 870 214" />
+  <text class="rel-text" x="754" y="338">1 : N 排班</text>
+
+  <path class="rel" d="M310 214 C540 214 640 502 870 502" />
+  <text class="rel-text" x="458" y="288">用户创建预约</text>
+
+  <path class="rel" d="M310 486 C520 486 660 526 870 526" />
+  <text class="rel-text" x="458" y="514">就诊人挂号</text>
+
+  <path class="rel" d="M715 214 C780 214 805 550 870 550" />
+  <text class="rel-text" x="750" y="392">科室归属</text>
+
+  <path class="rel" d="M715 486 C780 486 805 574 870 574" />
+  <text class="rel-text" x="754" y="548">医生接诊</text>
+
+  <path class="rel" d="M995 308 L995 392" />
+  <text class="rel-text" x="1012" y="354">号源生成预约</text>
+</svg>
