@@ -211,11 +211,17 @@ CREATE TABLE appointment (
 -- 管理员账号：admin / 123456
 -- 患者账号：zhangsan / 123456
 -- 患者账号：lisi / 123456
+-- 患者账号：wangwu / 123456
+-- 患者账号：chenqian / 123456
+-- 患者账号：wuyue / 123456
 -- =========================================================
 INSERT INTO users (id, username, phone, email, password, role, status) VALUES
                                                                            (1, 'admin', '13800000000', 'admin@hospital.com', '123456', 'ADMIN', 1),
                                                                            (2, 'zhangsan', '13811111111', 'zhangsan@example.com', '123456', 'PATIENT', 1),
-                                                                           (3, 'lisi', '13822222222', 'lisi@example.com', '123456', 'PATIENT', 1);
+                                                                           (3, 'lisi', '13822222222', 'lisi@example.com', '123456', 'PATIENT', 1),
+                                                                           (4, 'wangwu', '13833333333', 'wangwu@example.com', '123456', 'PATIENT', 1),
+                                                                           (5, 'chenqian', '13844444444', 'chenqian@example.com', '123456', 'PATIENT', 1),
+                                                                           (6, 'wuyue', '13855555555', 'wuyue@example.com', '123456', 'PATIENT', 1);
 
 -- =========================================================
 -- 10. 初始化就诊人数据
@@ -223,7 +229,15 @@ INSERT INTO users (id, username, phone, email, password, role, status) VALUES
 INSERT INTO patient (id, user_id, name, id_card, phone, gender, birth_date) VALUES
                                                                                 (1, 2, '张三', '110101199801011234', '13811111111', 1, '1998-01-01'),
                                                                                 (2, 2, '张小明', '110101201005051234', '13811111111', 1, '2010-05-05'),
-                                                                                (3, 3, '李四', '110101199902021234', '13822222222', 1, '1999-02-02');
+                                                                                (3, 3, '李四', '110101199902021234', '13822222222', 1, '1999-02-02'),
+                                                                                (4, 2, '王小雨', '110101199503031111', '13830000001', 2, '1995-03-03'),
+                                                                                (5, 3, '孙浩', '110101199604041112', '13830000002', 1, '1996-04-04'),
+                                                                                (6, 4, '王五', '110101198805051235', '13833333333', 1, '1988-05-05'),
+                                                                                (7, 5, '赵晨', '110101199704041112', '13830000004', 1, '1997-04-04'),
+                                                                                (8, 5, '钱嘉', '110101199705051113', '13830000003', 2, '1997-05-05'),
+                                                                                (9, 6, '吴越', '110101199806061114', '13855555555', 1, '1998-06-06'),
+                                                                                (10, 6, '郑凯', '110101199907071115', '13830000005', 1, '1999-07-07'),
+                                                                                (11, 3, '周婷', '110101199808081116', '13830000006', 2, '1998-08-08');
 
 -- =========================================================
 -- 11. 初始化科室数据
@@ -259,7 +273,7 @@ INSERT INTO doctor (id, department_id, name, title, specialty, introduction, sta
 -- =========================================================
 -- 13. 初始化未来 7 天号源数据
 -- 说明：
--- 从今天开始连续 7 天；上午时段查询时会隐藏今天上午，仅保留今天下午可预约
+-- 从今天开始连续 7 天；业务层会按当前时间限制当天上午 11:30 后、当天下午 17:30 后不可预约
 -- 每位医生每天上午、下午各一条号源
 -- 上午默认 15 个号，下午默认 12 个号
 -- =========================================================
@@ -316,7 +330,55 @@ WHERE doctor_id = 4
   AND period = 'AFTERNOON';
 
 -- =========================================================
--- 15. 查询验证
+-- 15. 初始化仿真预约记录
+-- 说明：用于管理统计、我的预约、预约状态展示；每个测试账号不超过 3 个就诊人
+-- =========================================================
+INSERT INTO appointment (
+    id, appointment_no, user_id, patient_id, department_id, doctor_id, schedule_id,
+    visit_date, period, status, notice_sent, cancel_time
+) VALUES
+      (1, 'YYGH202605300001A1B2C3', 2, 1, 1, 1, (SELECT id FROM schedule WHERE doctor_id = 1 AND work_date = DATE_ADD(CURDATE(), INTERVAL 1 DAY) AND period = 'MORNING'), DATE_ADD(CURDATE(), INTERVAL 1 DAY), 'MORNING', 'WAITING', 1, NULL),
+      (2, 'YYGH202605300002B2C3D4', 2, 2, 2, 4, (SELECT id FROM schedule WHERE doctor_id = 4 AND work_date = DATE_ADD(CURDATE(), INTERVAL 1 DAY) AND period = 'AFTERNOON'), DATE_ADD(CURDATE(), INTERVAL 1 DAY), 'AFTERNOON', 'WAITING', 1, NULL),
+      (3, 'YYGH202605300003C3D4E5', 3, 3, 3, 6, (SELECT id FROM schedule WHERE doctor_id = 6 AND work_date = DATE_ADD(CURDATE(), INTERVAL 1 DAY) AND period = 'MORNING'), DATE_ADD(CURDATE(), INTERVAL 1 DAY), 'MORNING', 'WAITING', 1, NULL),
+      (4, 'YYGH202605300004D4E5F6', 2, 4, 4, 8, (SELECT id FROM schedule WHERE doctor_id = 8 AND work_date = DATE_ADD(CURDATE(), INTERVAL 1 DAY) AND period = 'AFTERNOON'), DATE_ADD(CURDATE(), INTERVAL 1 DAY), 'AFTERNOON', 'CANCELLED', 1, NOW()),
+      (5, 'YYGH202605300005E5F6A7', 3, 5, 5, 10, (SELECT id FROM schedule WHERE doctor_id = 10 AND work_date = DATE_ADD(CURDATE(), INTERVAL 1 DAY) AND period = 'MORNING'), DATE_ADD(CURDATE(), INTERVAL 1 DAY), 'MORNING', 'WAITING', 1, NULL),
+      (6, 'YYGH202605300006F6A7B8', 4, 6, 1, 2, (SELECT id FROM schedule WHERE doctor_id = 2 AND work_date = DATE_ADD(CURDATE(), INTERVAL 2 DAY) AND period = 'AFTERNOON'), DATE_ADD(CURDATE(), INTERVAL 2 DAY), 'AFTERNOON', 'WAITING', 1, NULL),
+      (7, 'YYGH202605300007A7B8C9', 5, 7, 2, 5, (SELECT id FROM schedule WHERE doctor_id = 5 AND work_date = DATE_ADD(CURDATE(), INTERVAL 2 DAY) AND period = 'MORNING'), DATE_ADD(CURDATE(), INTERVAL 2 DAY), 'MORNING', 'WAITING', 1, NULL),
+      (8, 'YYGH202605300008B8C9D0', 5, 8, 3, 7, (SELECT id FROM schedule WHERE doctor_id = 7 AND work_date = DATE_ADD(CURDATE(), INTERVAL 2 DAY) AND period = 'AFTERNOON'), DATE_ADD(CURDATE(), INTERVAL 2 DAY), 'AFTERNOON', 'WAITING', 1, NULL),
+      (9, 'YYGH202605300009C9D0E1', 6, 9, 4, 9, (SELECT id FROM schedule WHERE doctor_id = 9 AND work_date = DATE_ADD(CURDATE(), INTERVAL 2 DAY) AND period = 'MORNING'), DATE_ADD(CURDATE(), INTERVAL 2 DAY), 'MORNING', 'WAITING', 1, NULL),
+      (10, 'YYGH202605300010D0E1F2', 6, 10, 5, 11, (SELECT id FROM schedule WHERE doctor_id = 11 AND work_date = DATE_ADD(CURDATE(), INTERVAL 2 DAY) AND period = 'AFTERNOON'), DATE_ADD(CURDATE(), INTERVAL 2 DAY), 'AFTERNOON', 'WAITING', 1, NULL),
+      (11, 'YYGH202605300011E1F2A3', 3, 11, 1, 3, (SELECT id FROM schedule WHERE doctor_id = 3 AND work_date = DATE_ADD(CURDATE(), INTERVAL 3 DAY) AND period = 'MORNING'), DATE_ADD(CURDATE(), INTERVAL 3 DAY), 'MORNING', 'WAITING', 1, NULL),
+      (12, 'YYGH202605300012F2A3B4', 2, 1, 2, 4, (SELECT id FROM schedule WHERE doctor_id = 4 AND work_date = DATE_ADD(CURDATE(), INTERVAL 3 DAY) AND period = 'MORNING'), DATE_ADD(CURDATE(), INTERVAL 3 DAY), 'MORNING', 'WAITING', 1, NULL),
+      (13, 'YYGH202605300013A3B4C5', 2, 2, 3, 6, (SELECT id FROM schedule WHERE doctor_id = 6 AND work_date = DATE_ADD(CURDATE(), INTERVAL 3 DAY) AND period = 'AFTERNOON'), DATE_ADD(CURDATE(), INTERVAL 3 DAY), 'AFTERNOON', 'WAITING', 1, NULL),
+      (14, 'YYGH202605300014B4C5D6', 3, 3, 4, 8, (SELECT id FROM schedule WHERE doctor_id = 8 AND work_date = DATE_ADD(CURDATE(), INTERVAL 3 DAY) AND period = 'MORNING'), DATE_ADD(CURDATE(), INTERVAL 3 DAY), 'MORNING', 'WAITING', 1, NULL),
+      (15, 'YYGH202605300015C5D6E7', 2, 4, 5, 10, (SELECT id FROM schedule WHERE doctor_id = 10 AND work_date = DATE_ADD(CURDATE(), INTERVAL 3 DAY) AND period = 'AFTERNOON'), DATE_ADD(CURDATE(), INTERVAL 3 DAY), 'AFTERNOON', 'WAITING', 1, NULL),
+      (16, 'YYGH202605300016D6E7F8', 3, 5, 1, 1, (SELECT id FROM schedule WHERE doctor_id = 1 AND work_date = DATE_ADD(CURDATE(), INTERVAL 4 DAY) AND period = 'AFTERNOON'), DATE_ADD(CURDATE(), INTERVAL 4 DAY), 'AFTERNOON', 'CANCELLED', 1, NOW()),
+      (17, 'YYGH202605300017E7F8A9', 4, 6, 2, 5, (SELECT id FROM schedule WHERE doctor_id = 5 AND work_date = DATE_ADD(CURDATE(), INTERVAL 4 DAY) AND period = 'MORNING'), DATE_ADD(CURDATE(), INTERVAL 4 DAY), 'MORNING', 'WAITING', 1, NULL),
+      (18, 'YYGH202605300018F8A9B0', 5, 7, 3, 7, (SELECT id FROM schedule WHERE doctor_id = 7 AND work_date = DATE_ADD(CURDATE(), INTERVAL 4 DAY) AND period = 'AFTERNOON'), DATE_ADD(CURDATE(), INTERVAL 4 DAY), 'AFTERNOON', 'WAITING', 1, NULL),
+      (19, 'YYGH202605300019A9B0C1', 5, 8, 4, 9, (SELECT id FROM schedule WHERE doctor_id = 9 AND work_date = DATE_ADD(CURDATE(), INTERVAL 4 DAY) AND period = 'MORNING'), DATE_ADD(CURDATE(), INTERVAL 4 DAY), 'MORNING', 'WAITING', 1, NULL),
+      (20, 'YYGH202605300020B0C1D2', 6, 9, 5, 11, (SELECT id FROM schedule WHERE doctor_id = 11 AND work_date = DATE_ADD(CURDATE(), INTERVAL 4 DAY) AND period = 'AFTERNOON'), DATE_ADD(CURDATE(), INTERVAL 4 DAY), 'AFTERNOON', 'WAITING', 1, NULL);
+
+-- 根据未取消预约同步号源剩余数量，保留手工设置的约满和停诊状态
+UPDATE schedule s
+LEFT JOIN (
+    SELECT schedule_id, COUNT(*) AS used_count
+    FROM appointment
+    WHERE status <> 'CANCELLED'
+    GROUP BY schedule_id
+) a ON a.schedule_id = s.id
+SET s.available_count = CASE
+        WHEN s.status IN ('FULL', 'STOPPED') AND COALESCE(a.used_count, 0) = 0 THEN 0
+        ELSE GREATEST(s.total_count - COALESCE(a.used_count, 0), 0)
+    END,
+    s.status = CASE
+        WHEN s.status = 'STOPPED' THEN 'STOPPED'
+        WHEN s.status = 'FULL' AND COALESCE(a.used_count, 0) = 0 THEN 'FULL'
+        WHEN GREATEST(s.total_count - COALESCE(a.used_count, 0), 0) = 0 THEN 'FULL'
+        ELSE 'AVAILABLE'
+    END;
+
+-- =========================================================
+-- 16. 查询验证
 -- 执行完脚本后可以运行下面 SQL 检查数据
 -- =========================================================
 
